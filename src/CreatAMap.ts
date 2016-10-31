@@ -4,9 +4,9 @@ class TileMap extends egret.DisplayObjectContainer{
     private TextruesSize = 64;
     public startTile : Tile;
     public endTile : Tile;
-    private numCols:number;
-    private numRows:number;
-    private tileArray : Tile[];
+    public numCols:number;
+    public numRows:number;
+    public tileArray : Tile[];
     
 
     constructor(){
@@ -15,32 +15,39 @@ class TileMap extends egret.DisplayObjectContainer{
         // this.height = this.size * this.TextruesSize;
         this.tileArray = [];
         this.init();
-        this.numCols = 10;
-        this.numRows = 10;
+        this.startTile = this.tileArray[0];
+        this.endTile = this.tileArray[0];
+        this.numCols = 3;
+        this.numRows = 3;
         
     }
     
     private init(){
         var config : TileData[] = [
         {x : 0 ,y : 0 , walkable : true , pictureName : "grass_top_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0},
-        {x : 0 ,y : 1 , walkable : true , pictureName : "grass_top_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0}, 
-        {x : 1 ,y : 0 , walkable : false , pictureName : "stonebrick_mossy_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0},
-        {x : 1 ,y : 1 , walkable : false , pictureName : "stonebrick_mossy_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0}               
+        {x : 0 ,y : 1 , walkable : false , pictureName : "furnace_side_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0},
+        {x : 0 ,y : 2 , walkable : true , pictureName : "gold_ore_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0}, 
+        {x : 1 ,y : 0 , walkable : true , pictureName : "grass_top_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0},
+        {x : 1 ,y : 1 , walkable : false , pictureName : "furnace_side_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0},
+        {x : 1 ,y : 2 , walkable : true , pictureName : "grass_top_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0},
+        {x : 2 ,y : 0 , walkable : true , pictureName : "grass_top_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0},
+        {x : 2 ,y : 1 , walkable : true , pictureName : "grass_top_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0},
+        {x : 2 ,y : 2 , walkable : true , pictureName : "grass_top_png" , f : 0 , g : 0, h : 0 , costMultiplier :1.0}             
     ]
 
     for(let i = 0 ; i < config.length ; i++){
-        var tiledate = config[i];
-        var tile = new Tile(tiledate);
+        var tiledata = config[i];
+        var tile = new Tile(tiledata);
         this.addChild(tile);
-        tile.x = tiledate.x * 64;
-        tile.y = tiledate.y * 64;
+        tile.x = tiledata.x * 64;
+        tile.y = tiledata.y * 64;
         this.tileArray.push(tile);
     }
     }
 
     public getTile( x : number , y : number):any{
         for(var i = 0 ; i<this.tileArray.length ; i++){
-              if(this.tileArray[i].x == x && this.tileArray[i].y== y){
+              if(this.tileArray[i].x / this.TextruesSize == x && this.tileArray[i].y / this.TextruesSize == y){
                   break;
               }
         }
@@ -50,7 +57,7 @@ class TileMap extends egret.DisplayObjectContainer{
 
     public setStartTile( x : number , y : number){
         for(var i = 0 ; i<this.tileArray.length ; i++){
-              if(this.tileArray[i].x == x && this.tileArray[i].y== y){
+              if(this.tileArray[i].x / this.TextruesSize == x && this.tileArray[i].y / this.TextruesSize== y){
                   break;
               }
         }
@@ -60,7 +67,7 @@ class TileMap extends egret.DisplayObjectContainer{
 
     public setEndTile( x : number , y : number){
         for(var i = 0 ; i<this.tileArray.length ; i++){
-              if(this.tileArray[i].x == x && this.tileArray[i].y== y){
+              if(this.tileArray[i].x / this.TextruesSize == x && this.tileArray[i].y / this.TextruesSize == y){
                   break;
               }
         }
@@ -88,10 +95,13 @@ class TileMap extends egret.DisplayObjectContainer{
 class Tile extends egret.DisplayObjectContainer{
     public bitmaps;
     public bitmapSize = 64;
+    public tileData : TileData;
+    public tileParent : Tile;
     
     
     constructor(tiledata : TileData){
         super();
+        this.tileData = tiledata;
         this.bitmaps = new egret.Bitmap();
         this.addChild(this.bitmaps);
         this.bitmaps.texture = RES.getRes(tiledata.pictureName); 
@@ -106,9 +116,9 @@ class TileData{
     public y : number;
     public walkable : boolean;
     public pictureName : string;
-    public  f:Number;
-    public  g:Number;
-    public  h:Number;
-    public  costMultiplier:Number = 1.0;
+    public  f:number;
+    public  g:number;
+    public  h:number;
+    public  costMultiplier:number = 1.0;
 
 }

@@ -136,6 +136,19 @@ class Main extends egret.DisplayObjectContainer {
     private Stage01Background : egret.Bitmap;
     private MoveTime = 0;
     private map01 : TileMap;
+    private astar : AStar;
+    private tileX : number;
+    private tileY : number;
+    private tileSize = 64;
+    private ifFindAWay : boolean = false;
+    private currentPath : number = 0;
+    private movingTime = 32;
+    private ifOnGoal = false;
+    private ifStartMove = false;
+    private playerx : number;
+    private playery : number;
+    private playerBitX : number;
+    private playerBitY : number;
 
     
     /**
@@ -157,9 +170,15 @@ class Main extends egret.DisplayObjectContainer {
 
         
 
-        // this.addChild(this.Player.PersonBitmap);
-        // this.Player.PersonBitmap.x = stageW / 2;
-        // this.Player.PersonBitmap.y = 3 * stageH / 4;
+         this.addChild(this.Player.PersonBitmap);
+         this.Player.PersonBitmap.x = 0;
+         this.Player.PersonBitmap.y = 0;
+
+         this.map01.startTile = this.map01.getTile(0,0);
+         this.map01.endTile = this.map01.getTile(0,0);
+         //this.map01.setEndTile(2,1);
+
+         this.astar = new AStar();
 
 
        
@@ -168,20 +187,46 @@ class Main extends egret.DisplayObjectContainer {
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
         //RES.getResAsync("description_json", this.startAnimation, this)
             this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN,(e : egret.TouchEvent)=>{
-            egret.Tween.removeTweens(this.Player.PersonBitmap);
-            this.Player.SetState(new WalkingState(),this);
+            //egret.Tween.removeTweens(this.Player.PersonBitmap);
+            this.ifStartMove = true;
+            //var tempTile : Tile;
+            this.playerx = Math.floor(this.Player.PersonBitmap.x / this.tileSize);
+            this.playery = Math.floor(this.Player.PersonBitmap.y / this.tileSize);
+            this.playerBitX = this.Player.PersonBitmap.x;
+            this.playerBitY = this.Player.PersonBitmap.y;
+            this.map01.startTile = this.map01.getTile(this.playerx,this.playery);
+            this.currentPath = 0;
+            //console.log(playerx + " And " + playery);
             this.EventPoint.x = e.stageX;
             this.EventPoint.y = e.stageY;
-            var distanceX = this.Player.PersonBitmap.x - e.stageX;
-            var distanceY = this.Player.PersonBitmap.y - e.stageY;
-            if(distanceX < 0){
-            this.Player.SetRightOrLeftState(new GoRightState(),this);
+            this.tileX = Math.floor(this.EventPoint.x / this.tileSize);
+            this.tileY = Math.floor(this.EventPoint.y / this.tileSize);
+            
+            // if(this.map01.getTile(this.tileX,this.tileY).tileData.walkable)
+            // {
+            //     
+            // }
+            //this.map01.setEndTile(this.tileX,this.tileY);
+            this.map01.endTile = this.map01.getTile(this.tileX,this.tileY);
+            this.ifFindAWay = this.astar.findPath(this.map01);
+            if(this.ifFindAWay){
+                this.Player.SetState(new WalkingState(),this);
+                this.currentPath = 0;
             }
-            if(distanceX >= 0){
-            this.Player.SetRightOrLeftState(new GoLeftState(),this);
+
+            for(let i = 0 ; i < this.astar.pathArray.length ; i++){
+                console.log(this.astar.pathArray[i].x + " And " + this.astar.pathArray[i].y);
             }
-            egret.Tween.get(this.Player.PersonBitmap).to({x : e.stageX,y : e.stageY} , Math.abs(distanceX) * 3 + Math.abs(distanceY) * 3);
-            this.MoveTime = Math.abs(distanceX) * 3 + Math.abs(distanceY) * 3;
+            // egret.Ticker.getInstance().register(()=>{
+            // if(!this.IfOnGoal(this.map01.getTile(1,0))){
+            //    this.Player.PersonBitmap.x++;
+            // }
+            // },this)
+            
+            
+            //console.log(this.map01.endTile.x + " And " + this.map01.endTile.y);
+            
+        
             // while(this.Player.PersonBitmap.x != this.GoalPoint.x || this.Player.PersonBitmap.y != this.GoalPoint.y){
             //     egret.Ticker.getInstance().register(()=>{
             //        this.Player.PersonBitmap.x += 1;
@@ -189,10 +234,16 @@ class Main extends egret.DisplayObjectContainer {
             //     },this)
             // }
             // this.PictureMove(this.Stage01Background);
+
+            if(this.ifFindAWay)
+            this.map01.startTile = this.map01.endTile;
         },this)
         
-            this.PlayerAnimation();
+            this.PlayerMove();
         
+        
+            this.PlayerAnimation();
+            
         
             
     }
@@ -242,6 +293,67 @@ class Main extends egret.DisplayObjectContainer {
         
     // }
 
+   public PlayerMove(){
+       var self:any = this;
+       
+       egret.Ticker.getInstance().register(()=>{
+    if(this.ifStartMove && self.ifFindAWay){
+       if(self.currentPath < self.astar.pathArray.length - 1){ 
+            var distanceX = self.astar.pathArray[self.currentPath + 1].x - self.astar.pathArray[self.currentPath].x;
+            var distanceY = self.astar.pathArray[self.currentPath + 1].y - self.astar.pathArray[self.currentPath].y;
+            //console.log(distanceX + "And" + distanceY);
+
+            if(distanceX > 0){
+            self.Player.SetRightOrLeftState(new GoRightState(),self);
+            }
+            if(distanceX <= 0){
+            self.Player.SetRightOrLeftState(new GoLeftState(),self);
+            }
+            if(!self.IfOnGoal(self.astar.pathArray[self.currentPath + 1])){
+               self.Player.PersonBitmap.x += distanceX / self.movingTime;
+               self.Player.PersonBitmap.y += distanceY / self.movingTime;
+            }
+            else{
+               self.currentPath += 1;
+            }
+          }
+    }
+    if(this.ifStartMove && !self.ifFindAWay){
+        var distanceX = self.map01.startTile.x - self.playerBitX;
+        var distanceY = self.map01.startTile.y - self.playerBitY;
+        if(distanceX > 0){
+            self.Player.SetRightOrLeftState(new GoRightState(),self);
+            }
+            if(distanceX <= 0){
+            self.Player.SetRightOrLeftState(new GoLeftState(),self);
+            }
+        if(!self.IfOnGoal(self.map01.startTile)){
+               self.Player.PersonBitmap.x += distanceX / self.movingTime;
+               self.Player.PersonBitmap.y += distanceY / self.movingTime;
+            }
+            else
+            self.Player.SetState(new IdleState(),self);
+    }
+        },self)
+
+
+    //    for( self.currentPath = 0 ; self.currentPath < self.astar.pathArray.length - 1; self.currentPath++){
+    //         var distanceX = self.astar.pathArray[self.currentPath + 1].x - self.astar.pathArray[self.currentPath].x;
+    //         var distanceY = self.astar.pathArray[self.currentPath + 1].y - self.astar.pathArray[self.currentPath].y;
+    //         if(distanceX < 0){
+    //         self.Player.SetRightOrLeftState(new GoRightState(),self);
+    //         }
+    //         if(distanceX >= 0){
+    //         self.Player.SetRightOrLeftState(new GoLeftState(),self);
+    //         }
+    //         egret.Tween.get(self.Player.PersonBitmap).to({x : self.Player.PersonBitmap.x + distanceX,y : self.Player.PersonBitmap.y + distanceY} , Math.abs(distanceX) * 3 + Math.abs(distanceY) * 3);
+    //         self.MoveTime = Math.abs(distanceX) * 3 + Math.abs(distanceY) * 3;
+    //    }
+      
+   }
+
+
+
     public PictureMove(pic : egret.Bitmap):void{
         var self:any = this;
         var MapMove:Function = function (){
@@ -260,6 +372,18 @@ class Main extends egret.DisplayObjectContainer {
     }
 
 
+    public IfOnGoal(tile : Tile) : any{
+        var self:any = this;
+        if(self.Player.PersonBitmap.x == tile.x && self.Player.PersonBitmap.y == tile.y)
+        this.ifOnGoal = true;
+        else 
+        this.ifOnGoal = false;
+        //console.log(Math.floor(self.Player.PersonBitmap.x - 42 / tile.x) + " And " + Math.floor(self.Player.PersonBitmap.y - 64 / tile.y));
+        return this.ifOnGoal;
+
+    }
+
+
     public PlayerAnimation():void{
         var self:any = this;
         var n = 0;
@@ -273,7 +397,7 @@ class Main extends egret.DisplayObjectContainer {
 
         var MoveAnimation:Function = function (){
             //var playerBitmap = egret.Tween.get(self.Player.PersonBitmap);
-            
+               
                 
                 egret.Ticker.getInstance().register(()=>{
                 if(zhen % 4 == 0){
@@ -320,7 +444,7 @@ class Main extends egret.DisplayObjectContainer {
                     }
 
 
-                    if(self.Player.PersonBitmap.x == self.EventPoint.x && self.Player.PersonBitmap.y == self.EventPoint.y){
+                    if(self.IfOnGoal(self.map01.endTile)){
                      self.Player.SetState(new IdleState(),self);
                     }
                 },self);
@@ -382,10 +506,10 @@ class Person{
 
     constructor(){
         this.PersonBitmap = new egret.Bitmap();
-        this.PersonBitmap.width = 216;
-        this.PersonBitmap.height = 278;
-        this.PersonBitmap.anchorOffsetX = 2 * this.PersonBitmap.width / 3;
-        this.PersonBitmap.anchorOffsetY = this.PersonBitmap.height;
+        this.PersonBitmap.width = 49;
+        this.PersonBitmap.height = 64;
+        // this.PersonBitmap.anchorOffsetX = 2 * this.PersonBitmap.width / 3;
+        // this.PersonBitmap.anchorOffsetY = this.PersonBitmap.height;
         this.IsIdle = true;
         this.IsWalking = false;
         this.IdleOrWalkStateMachine = new StateMachine();

@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_jpg,egret_icon_png,description_json,Ground_png,0008_png,0019_png,0009_png,0010_png,0011_png,0012_png,0013_png,0014_png,0015_png,0016_png,0017_png,0018_png,0029_png,0030_png,0031_png,0032_png,0033_png,0034_png,0024_png,0025_png,0026_png,0027_png,0028_png,0024_2_png,0025_2_png,0026_2_png,0027_2_png,0028_2_png,0029_2_png,0030_2_png,0031_2_png,0032_2_png,0033_2_png,0034_2_png,BackGround_jpg,grass_top_png,stone_png,stonebrick_png,stonebrick_cracked_png,stonebrick_mossy_png",
+			"keys": "bg_jpg,egret_icon_png,description_json,Ground_png,0008_png,0019_png,0009_png,0010_png,0011_png,0012_png,0013_png,0014_png,0015_png,0016_png,0017_png,0018_png,0029_png,0030_png,0031_png,0032_png,0033_png,0034_png,0024_png,0025_png,0026_png,0027_png,0028_png,0024_2_png,0025_2_png,0026_2_png,0027_2_png,0028_2_png,0029_2_png,0030_2_png,0031_2_png,0032_2_png,0033_2_png,0034_2_png,BackGround_jpg,grass_top_png,stone_png,stonebrick_png,stonebrick_cracked_png,stonebrick_mossy_png,gold_ore_png,leaves_spruce_opaque_png,mycelium_top_png,diamond_ore_png,furnace_side_png",
 			"name": "preload"
 		}
 	],
@@ -225,6 +225,31 @@
 			"name": "stonebrick_mossy_png",
 			"type": "image",
 			"url": "assets/stonebrick_mossy.png"
+		},
+		{
+			"name": "gold_ore_png",
+			"type": "image",
+			"url": "assets/gold_ore.png"
+		},
+		{
+			"name": "leaves_spruce_opaque_png",
+			"type": "image",
+			"url": "assets/leaves_spruce_opaque.png"
+		},
+		{
+			"name": "mycelium_top_png",
+			"type": "image",
+			"url": "assets/mycelium_top.png"
+		},
+		{
+			"name": "diamond_ore_png",
+			"type": "image",
+			"url": "assets/diamond_ore.png"
+		},
+		{
+			"name": "furnace_side_png",
+			"type": "image",
+			"url": "assets/furnace_side.png"
 		}
 	]
 }
